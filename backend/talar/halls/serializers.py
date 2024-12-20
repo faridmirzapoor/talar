@@ -6,8 +6,7 @@ import jdatetime
 class HallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Halls
-        fields = '__all__'
-
+        fields = ['id', 'name', 'capacity', 'address', 'slug', 'image']
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:

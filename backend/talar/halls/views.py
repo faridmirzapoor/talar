@@ -13,6 +13,22 @@ class HallListView(ListAPIView):
     queryset = Halls.objects.all()
     serializer_class = HallSerializer
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        data = [
+            {
+                "id": hall.id,
+                "name_farsi": hall.get_name_display(),
+                "name_english": hall.name,
+                "capacity": hall.capacity,
+                "address": hall.address,
+                "slug": hall.slug,
+                "image": hall.image.url if hall.image else None
+            }
+            for hall in self.get_queryset()
+        ]
+        return Response(data)
+
 
 class HallDetailView(APIView):
     def get(self, request, hall_name):
@@ -22,7 +38,9 @@ class HallDetailView(APIView):
         event_serializer = EventSerializer(events, many=True)
         return Response({
             'hall': hall_serializer.data,
-            'events': event_serializer.data
+            'events': event_serializer.data,
+            'name_farsi': hall.get_name_display(),  # اضافه کردن نام فارسی
+            'name_english': hall.name  # اضافه کردن نام انگلیسی
         })
 
 
