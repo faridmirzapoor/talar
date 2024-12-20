@@ -1,47 +1,63 @@
-"use client"; // Mark this component as a Client Component
+'use client'
 
-import { useRouter } from 'next/navigation'; // Correct import for Client Components
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Calendar from "@components/ui/calendar"; // Make sure this path is correct
 
-const TalarPage = ({ params }: { params: { name: string } }) => {
-  const [talar, setTalar] = useState<string[]>([]);
+const TalarPage = () => {
+  const [talar, setTalar] = useState<any>(null);
+  const params = useParams();
+  const router = useRouter();
   const { name } = params;
-  const router = useRouter()
 
   useEffect(() => {
-    const fetchTalars = async () => {
+    const fetchTalar = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/halls/${name}`);
-        setTalar(response.data);
+        if (name) {
+          const response = await axios.get(
+            `http://127.0.0.1:8000/halls/${name}`
+          );
+          setTalar(response.data);
+        }
       } catch (error) {
-        console.error("Error fetching talars:", error);
+        console.error("Error fetching talar:", error);
       }
     };
-    if (name) {
-      fetchTalars();
-    }
+
+    fetchTalar();
   }, [name]);
 
   useEffect(() => {
-    console.log(talar);
+    if (talar) {
+      console.log(talar.events);
+    }
   }, [talar]);
 
-  const submitForm = async (data: { talarName: string }) => {
-    try {
-      router.push(`/talar/${data.talarName}`);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
-  };
+  if (!talar) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="font-estedadSB">
+    <div className="font-estedadSB text-white">
       <div className="w-full relative">
-        <h1>Dynamic Talar Name: {talar.name_farsi}</h1>
-        {/* Your other JSX */}
-        <button onClick={() => submitForm({ talarName: name })}>Submit</button>
+        <div className="font-estedadSB flex flex-col">
+          <div className="w-full relative vmini:h-[300px] tablet:h-[400px] desktop:h-[450px] bg-[#191970] flex flex-col items-center justify-center gap-4">
+            <h1>تالار: {talar.name_farsi}</h1>
+            <div className="flex justify-center items-center gap-8">
+              <div className="flex flex-col flex-[1] justify-center items-center w-36 h-28 bg-red-500 rounded-lg">
+                <span>ظرفیت:</span>
+                <span>{talar.hall.capacity} نفر</span>
+              </div>
+              <div className="flex flex-col flex-[3] justify-center items-center w-36 h-28 bg-red-500 rounded-lg">
+                <span>مکان:</span>
+                <span className="text-center">{talar.hall.address}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+      {talar && <Calendar talar={talar} />}
     </div>
   );
 };
