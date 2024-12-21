@@ -107,6 +107,7 @@ body {
 }
 
 @layer utilities {
+  
   .bg-hero {
     background: url("/img/sardar.jpg");
     background-position: center;
@@ -132,11 +133,7 @@ body {
 
   .bg-gradient {
     background: rgb(61, 61, 61);
-    background: linear-gradient(
-      0deg,
-      rgb(77, 51, 121) 0%,
-      rgb(28, 0, 80) 100%
-    );
+    background: linear-gradient(0deg, rgb(77, 51, 121) 0%, rgb(28, 0, 80) 100%);
   }
 
   .is-invalid {
@@ -152,6 +149,25 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
   }
+
+@media (max-width: 768px) {
+  .calendar-scroll-container {
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch; 
+    width: 100%; 
+    display: flex; 
+  }
+
+  .fc-view {
+    min-width: 600px;  
+  }
+
+  .fc-timegrid-week-view {
+    min-width: 700px; 
+    width: max-content;
+  }
+}
+  
 }
 
 @layer base {
@@ -161,4 +177,5 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  
 }

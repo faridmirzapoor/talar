@@ -28,25 +28,30 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
   const [currentEvents, setCurrentEvents] = useState<EventApi[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [newEventTitle, setNewEventTitle] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<DateSelectArg | null>(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const events = talar.events || [];
         const calendarEvents = events.map((task: any) => {
-            const startDateTime = moment(`${task.event_date} ${task.start_time}`, "jYYYY-jMM-jDD HH:mm").toDate();
-            const endDateTime = moment(`${task.event_date} ${task.end_time}`, "jYYYY-jMM-jDD HH:mm").toDate();
-          
-            return {
-              id: task.id,
-              title: task.title,
-              start: startDateTime,
-              end: endDateTime,
-              description: task.description,
-            };
-          });
-          
+          const startDateTime = moment(
+            `${task.event_date} ${task.start_time}`,
+            "jYYYY-jMM-jDD HH:mm"
+          ).toDate();
+          const endDateTime = moment(
+            `${task.event_date} ${task.end_time}`,
+            "jYYYY-jMM-jDD HH:mm"
+          ).toDate();
+
+          return {
+            id: task.id,
+            title: task.title,
+            start: startDateTime,
+            end: endDateTime,
+            description: task.description,
+          };
+        });
+
         setCurrentEvents(calendarEvents);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -59,7 +64,6 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
   }, [talar]);
 
   const handleDateClick = (selected: DateSelectArg) => {
-    setSelectedDate(selected);
     setIsDialogOpen(true);
   };
 
@@ -80,33 +84,30 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
 
   const handleAddEvent = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newEventTitle && selectedDate) {
-      const calendarApi = selectedDate.view.calendar;
-      calendarApi.unselect();
-      const newEvent = {
-        id: `${selectedDate.start.toISOString()}-${newEventTitle}`,
-        title: newEventTitle,
-        start: selectedDate.start,
-        end: selectedDate.end,
-        allDay: selectedDate.allDay,
-      };
-      calendarApi.addEvent(newEvent);
-      handleCloseDialog();
+    if (newEventTitle) {
+      setNewEventTitle("");
+      setIsDialogOpen(false);
     }
   };
+
+  useEffect(() => {
+    const element = document.querySelector('[aria-labelledby="fc-dom-16"]');
+    
+    if (element) {
+      element.classList.add("overflow-x-auto");
+    }
+  }, []); 
+
+
 
   return (
     <div className="text-black">
       <div className="flex w-full px-10 justify-start items-start gap-8">
         <div className="w-3/12 hidden desktop:block">
-          <div className="py-10 text-2xl font-extrabold px-7">
-            Calendar Events
-          </div>
+          <div className="py-10 text-2xl font-extrabold px-7">Calendar Events</div>
           <ul className="space-y-4">
             {currentEvents.length <= 0 && (
-              <div className="italic text-center text-gray-400">
-                No Events Present
-              </div>
+              <div className="italic text-center text-gray-400">No Events Present</div>
             )}
 
             {currentEvents.length > 0 &&
@@ -131,28 +132,32 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
         </div>
 
         <div className="w-full desktop:w-9/12 mt-8">
-          <FullCalendar
-            height={"85vh"}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            headerToolbar={{
-              left: "prev,next today",
-              center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
-            }}
-            initialView="timeGridWeek"
-            editable={false}
-            selectable={false}
-            selectMirror={true}
-            dayMaxEvents={true}
-            select={handleDateClick}
-            eventClick={handleEventClick}
-            events={currentEvents}
-            locale="fa"
-            dir="rtl"
-            firstDay={6}
-            weekNumberCalculation="local"
-            weekends={true}
-          />
+          <div className="calendar-scroll-container fc-direction-rtl">
+            <FullCalendar
+              height={"85vh"}
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              headerToolbar={{
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+              }}
+              initialView="timeGridWeek"
+              editable={false}
+              selectable={false}
+              selectMirror={true}
+              dayMaxEvents={true}
+              slotMinWidth={100} // Minimum width for each day column
+              select={handleDateClick}
+              eventClick={handleEventClick}
+              locale="fa"
+              dir="rtl"
+              firstDay={6}
+              weekNumberCalculation="local"
+              weekends={true}
+              events={currentEvents}
+              
+            />
+          </div>
         </div>
       </div>
 
