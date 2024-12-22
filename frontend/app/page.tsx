@@ -96,37 +96,42 @@ const Index = () => {
       </div>
       <div className="flex justify-center pt-10 bg-gradient flex-grow">
         <div className="bgSection">
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-row-reverse gap-4"
-        >
-          <Controller
-            name="talarName"
-            control={control}
-            render={({ field }) => (
-              <Select
-                dir="rtl"
-                value={field.value} // Bind the value to the form state
-                onValueChange={field.onChange} // Update form state with onChange
-              >
-                <SelectTrigger className="w-[40vw] h-14 bg-white">
-                  <SelectValue placeholder="محل برگزاری" />
-                </SelectTrigger>
-                <SelectContent className="font-estedadSB">
-                  {talars.map((talar, index) => (
-                    <SelectItem key={index} value={talar.name_english}>
-                      تالار {talar.name_farsi}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          <Button type="submit" variant="outline" className="h-14">
-            {isSubmitting ? "...در حال دریافت" : "دریافت اطلاعات"}
-          </Button>
-        </form>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-row-reverse gap-4"
+          >
+            <Controller
+              name="talarName"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  dir="rtl"
+                  value={field.value} // Bind the value to the form state
+                  onValueChange={field.onChange} // Update form state with onChange
+                >
+                  <SelectTrigger className="w-[40vw] h-14 bg-white">
+                    <SelectValue placeholder="محل برگزاری" />
+                  </SelectTrigger>
+                  <SelectContent className="font-estedadSB">
+                    {talars.length > 0 ? (
+                      talars.map((talar, index) => (
+                        <SelectItem key={index} value={talar.name_english}>
+                          تالار {talar.name_farsi}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="default" disabled>
+                        داده‌ای یافت نشد
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            <Button type="submit" variant="outline" className="h-14">
+              {isSubmitting ? "...در حال دریافت" : "دریافت اطلاعات"}
+            </Button>
+          </form>
         </div>
       </div>
     </div>

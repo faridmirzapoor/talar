@@ -33,13 +33,12 @@ const BackgroundImageComponent = ({ imageUrl, children }) => {
   );
 };
 
-
 interface Talar {
   id: number; // یا string بسته به نوع شناسه
   name_farsi: string;
   name_english: string;
   hall: {
-    id: number
+    id: number;
     capacity: number;
     address: string;
   };
@@ -100,17 +99,18 @@ const TalarPage = () => {
   }
 
   const onSubmit = async (data) => {
-    const formattedEventDate = moment(data.event_date).format("YYYY-MM-DD");
-  
-    // زمان‌ها به فرمت 24 ساعته از input گرفته می‌شوند
+    const formattedEventDate = moment(data.event_date, "jYYYY-jMM-jDD").format(
+      "YYYY-MM-DD"
+    );
+
     const formattedStartTime = moment(data.start_time, "HH:mm").format("HH:mm");
     const formattedEndTime = moment(data.end_time, "HH:mm").format("HH:mm");
-  
+
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/halls/${data.talarName}/reserve/`, // Ensure this URL is correct
+        `http://127.0.0.1:8000/halls/${data.talarName}/reserve/`,
         {
-          hall: talar.hall.id, // Make sure this is the correct value (slug or id of the hall)
+          hall: talar.hall.id,
           title: data.title,
           event_date: formattedEventDate,
           start_time: formattedStartTime,
@@ -120,6 +120,7 @@ const TalarPage = () => {
           phone_number: data.phone_number,
         }
       );
+
       alert("درخواست رزرو با موفقیت ثبت شد!");
       setIsDialogOpen(false);
     } catch (error) {
@@ -127,7 +128,6 @@ const TalarPage = () => {
       alert("ثبت درخواست رزرو ناموفق بود.");
     }
   };
-  
 
   return (
     <div className="font-estedadSB text-white">

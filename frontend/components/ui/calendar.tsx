@@ -34,8 +34,13 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
       try {
         const events = talar.events || [];
         const calendarEvents = events.map((task: any) => {
-          const startDateTime = moment(task.event_date + " " + task.start_time, "jYYYY-jMM-jDD HH:mm").toDate();
-          const endDateTime = moment(task.event_date + " " + task.end_time, "jYYYY-jMM-jDD HH:mm").toDate();
+          console.log(task)
+          const startDateTime = moment(task.event_date + " " + task.start_time, "jYYYY-jMM-jDD HH:mm").toDate()
+          const endDateTime = moment(task.event_date + " " + task.end_time, "jYYYY-jMM-jDD HH:mm").toDate()
+          console.log(task.event_date)
+          console.log(startDateTime)
+          console.log('****')
+          console.log(endDateTime)
 
           return {
             id: task.id,
