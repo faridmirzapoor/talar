@@ -44,19 +44,16 @@ class HallDetailView(APIView):
         })
 
 
-class ReserveRequestView(APIView):
+
+class ReserveRequestView(APIView):    
     def post(self, request, hall_name):
-        hall = get_object_or_404(Halls, name=hall_name)
+        hall = get_object_or_404(Hall, name=hall_name)        
         data = request.data
         serializer = EventSerializer(data=data)
-        if serializer.is_valid():
-            otp, created = OTP.objects.get_or_create(phone_number=data['phone_number'])
-            otp.generate_otp()
-            print(f"کد OTP ارسال شده: {otp.code}")  # برای تست
-            serializer.save(hall=hall, status='pending')
-            return Response({"message": "درخواست رزرو ثبت شد و کد OTP ارسال شد."}, status=status.HTTP_201_CREATED)
+        if serializer.is_valid():            # ذخیره مستقیم درخواست رزرو با وضعیت "در حال آماده‌سازی"
+            serializer.save(hall=hall, status='pending')            
+            return Response({"message": "درخواست رزرو ثبت شد."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class OTPRequestView(APIView):
     def post(self, request):
