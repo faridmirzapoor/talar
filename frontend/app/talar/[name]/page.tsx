@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useForm, Controller } from "react-hook-form";
 import {
   Dialog,
@@ -9,11 +10,28 @@ import {
   DialogTitle,
 } from "@components/ui/dialog";
 import { Button } from "@components/ui/button";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@components/ui/select";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Calendar from "@components/ui/calendar";
+
+const BackgroundImageComponent = ({ imageUrl, children }) => {
+  return (
+    <div
+      className="bg-center bg-no-repeat bg-cover h-screen w-full flex justify-center items-center text-center"
+      style={{ backgroundImage: `url(${imageUrl})` }}
+    >
+      {children}
+    </div>
+  );
+};
 
 const TalarPage = () => {
   const [talar, setTalar] = useState(null);
@@ -33,7 +51,9 @@ const TalarPage = () => {
     const fetchTalar = async () => {
       try {
         if (name) {
-          const response = await axios.get(`http://127.0.0.1:8000/halls/${name}`);
+          const response = await axios.get(
+            `http://127.0.0.1:8000/halls/${name}`
+          );
           setTalar(response.data);
         }
       } catch (error) {
@@ -56,6 +76,10 @@ const TalarPage = () => {
 
     fetchTalars();
   }, []);
+
+  useEffect(() => {
+    console.log(talar);
+  }, [talar]);
 
   if (!talar) {
     return <div>Loading...</div>;
@@ -86,30 +110,34 @@ const TalarPage = () => {
       <div className="w-full relative">
         <div className="font-estedadSB flex flex-col">
           <div className="w-full relative vmini:h-[300px] tablet:h-[400px] desktop:h-[450px] bg-[#191970] flex flex-col items-center justify-center gap-4">
-            <h1>تالار: {talar.name_farsi}</h1>
-            <div className="flex justify-center items-center gap-8">
-              <div className="flex flex-col flex-[1] justify-center items-center w-36 h-28 bg-red-500 rounded-lg">
-                <span>ظرفیت:</span>
-                <span>{talar.hall.capacity} نفر</span>
+            <BackgroundImageComponent
+              imageUrl={`http://localhost:8000/media/halls_images/${talar.name_farsi}.jpg`}
+            >
+              <div>
+                <h1>تالار: {talar.name_farsi}</h1>
+                <div className="flex justify-center items-center gap-8">
+                  <div className="flex flex-col flex-[1] justify-center items-center w-36 h-28 bg-red-500 rounded-lg">
+                    <span>ظرفیت:</span>
+                    <span>{talar.hall.capacity} نفر</span>
+                  </div>
+                  <div className="flex flex-col flex-[3] justify-center items-center w-36 h-28 bg-red-500 rounded-lg">
+                    <span>مکان:</span>
+                    <span className="text-center">{talar.hall.address}</span>
+                  </div>
+                  <Button
+                    onClick={() => setIsDialogOpen(true)}
+                    variant="outline"
+                    className="flex-[1] h-full text-black hover:text-white hover:bg-stone-700 hover:border-2"
+                  >
+                    رزرو
+                  </Button>
+                </div>
               </div>
-              <div className="flex flex-col flex-[3] justify-center items-center w-36 h-28 bg-red-500 rounded-lg">
-                <span>مکان:</span>
-                <span className="text-center">{talar.hall.address}</span>
-              </div>
-              <Button
-                onClick={() => setIsDialogOpen(true)}
-                variant="outline"
-                className="flex-[1] h-full text-black hover:text-white hover:bg-stone-700 hover:border-2"
-              >
-                رزرو
-              </Button>
-            </div>
+            </BackgroundImageComponent>
           </div>
         </div>
       </div>
-
       {talar && <Calendar talar={talar} />}
-
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button className="hidden" />
@@ -212,7 +240,9 @@ const TalarPage = () => {
                 {isSubmitting ? "...در حال ارسال" : "ثبت درخواست"}
               </Button>
             </form>
-            <Button onClick={() => setIsDialogOpen(false)} className="mt-4">بستن</Button>
+            <Button onClick={() => setIsDialogOpen(false)} className="mt-4">
+              بستن
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
