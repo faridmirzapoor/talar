@@ -33,8 +33,22 @@ const BackgroundImageComponent = ({ imageUrl, children }) => {
   );
 };
 
+
+interface Talar {
+  id: number; // یا string بسته به نوع شناسه
+  name_farsi: string;
+  name_english: string;
+  hall: {
+    id: number
+    capacity: number;
+    address: string;
+  };
+}
+
+import moment from "moment-jalaali";
+
 const TalarPage = () => {
-  const [talar, setTalar] = useState(null);
+  const [talar, setTalar] = useState<Talar | null>(null);
   const [talars, setTalars] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const params = useParams();
@@ -86,14 +100,23 @@ const TalarPage = () => {
   }
 
   const onSubmit = async (data) => {
+    const formattedEventDate = moment(data.event_date).format("YYYY-MM-DD");
+  
+    // زمان‌ها به فرمت 24 ساعته از input گرفته می‌شوند
+    const formattedStartTime = moment(data.start_time, "HH:mm").format("HH:mm");
+    const formattedEndTime = moment(data.end_time, "HH:mm").format("HH:mm");
+  
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/halls/${data.talarName}/reserve/`,
+        `http://127.0.0.1:8000/halls/${data.talarName}/reserve/`, // Ensure this URL is correct
         {
+          hall: talar.hall.id, // Make sure this is the correct value (slug or id of the hall)
           title: data.title,
-          event_date: data.event_date,
-          start_time: data.start_time,
-          end_time: data.end_time,
+          event_date: formattedEventDate,
+          start_time: formattedStartTime,
+          end_time: formattedEndTime,
+          description: data.description,
+          student_id: data.student_id,
           phone_number: data.phone_number,
         }
       );
@@ -104,6 +127,7 @@ const TalarPage = () => {
       alert("ثبت درخواست رزرو ناموفق بود.");
     }
   };
+  
 
   return (
     <div className="font-estedadSB text-white">
@@ -206,11 +230,12 @@ const TalarPage = () => {
                 render={({ field }) => (
                   <input
                     {...field}
-                    type="time"
+                    type="time" // استفاده از input نوع time برای نمایش زمان به صورت 24 ساعته
                     className="w-full h-14 bg-white px-4"
                   />
                 )}
               />
+
               <Controller
                 name="end_time"
                 control={control}
@@ -218,11 +243,12 @@ const TalarPage = () => {
                 render={({ field }) => (
                   <input
                     {...field}
-                    type="time"
+                    type="time" // استفاده از input نوع time برای نمایش زمان به صورت 24 ساعته
                     className="w-full h-14 bg-white px-4"
                   />
                 )}
               />
+
               <Controller
                 name="phone_number"
                 control={control}
@@ -236,6 +262,33 @@ const TalarPage = () => {
                   />
                 )}
               />
+              {/* Add new fields if needed */}
+              <Controller
+                name="description"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <textarea
+                    {...field}
+                    placeholder="توضیحات"
+                    className="w-full h-20 bg-white px-4"
+                  />
+                )}
+              />
+              <Controller
+                name="student_id"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="کد دانشجویی"
+                    className="w-full h-14 bg-white px-4"
+                  />
+                )}
+              />
+
               <Button type="submit" variant="outline" className="h-14">
                 {isSubmitting ? "...در حال ارسال" : "ثبت درخواست"}
               </Button>

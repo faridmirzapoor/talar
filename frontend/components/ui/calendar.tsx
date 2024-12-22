@@ -34,14 +34,8 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
       try {
         const events = talar.events || [];
         const calendarEvents = events.map((task: any) => {
-          const startDateTime = moment(
-            `${task.event_date} ${task.start_time}`,
-            "jYYYY-jMM-jDD HH:mm"
-          ).toDate();
-          const endDateTime = moment(
-            `${task.event_date} ${task.end_time}`,
-            "jYYYY-jMM-jDD HH:mm"
-          ).toDate();
+          const startDateTime = moment(task.event_date + " " + task.start_time, "jYYYY-jMM-jDD HH:mm").toDate();
+          const endDateTime = moment(task.event_date + " " + task.end_time, "jYYYY-jMM-jDD HH:mm").toDate();
 
           return {
             id: task.id,
@@ -92,29 +86,31 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
 
   useEffect(() => {
     const element = document.querySelector('[aria-labelledby="fc-dom-16"]');
-    
+
     if (element) {
       element.classList.add("overflow-x-auto");
     }
-  }, []); 
-
-
+  }, []);
 
   return (
     <div className="text-black">
       <div className="flex w-full px-10 justify-start items-start gap-8">
         <div className="w-3/12 hidden desktop:block">
-          <div className="py-10 text-2xl font-extrabold px-7">Calendar Events</div>
+          <div className="py-10 text-2xl font-extrabold px-7">
+            Calendar Events
+          </div>
           <ul className="space-y-4">
             {currentEvents.length <= 0 && (
-              <div className="italic text-center text-gray-400">No Events Present</div>
+              <div className="italic text-center text-gray-400">
+                No Events Present
+              </div>
             )}
 
             {currentEvents.length > 0 &&
               currentEvents.map((event: EventApi) => (
                 <li
                   className="border border-gray-200 shadow px-4 py-2 rounded-md text-blue-800"
-                  key={event.id}
+                  key={`${event.id}-${event.start}`} // Ensure a unique key using a combination of `id` and `start`
                 >
                   {event.title}
                   <br />
@@ -155,7 +151,6 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
               weekNumberCalculation="local"
               weekends={true}
               events={currentEvents}
-              
             />
           </div>
         </div>

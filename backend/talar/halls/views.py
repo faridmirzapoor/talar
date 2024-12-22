@@ -47,9 +47,10 @@ class HallDetailView(APIView):
 
 class ReserveRequestView(APIView):    
     def post(self, request, hall_name):
-        hall = get_object_or_404(Hall, name=hall_name)        
+        hall = get_object_or_404(Halls, name=hall_name)        
         data = request.data
         serializer = EventSerializer(data=data)
+        print(request.data)
         if serializer.is_valid():            # ذخیره مستقیم درخواست رزرو با وضعیت "در حال آماده‌سازی"
             serializer.save(hall=hall, status='pending')            
             return Response({"message": "درخواست رزرو ثبت شد."}, status=status.HTTP_201_CREATED)
