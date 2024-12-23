@@ -107,7 +107,6 @@ body {
 }
 
 @layer utilities {
-  
   .bg-hero {
     background: url("/img/sardar.jpg");
     background-position: center;
@@ -124,6 +123,16 @@ body {
     filter: blur(4px);
     transition: filter 0.3s ease-in-out;
   } */
+
+  .glass_morph {
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(3.5px);
+    -webkit-backdrop-filter: blur(3.5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
 
   .bgSection {
     background-image: url("/img/bgSection.png");
@@ -150,24 +159,23 @@ body {
     background-size: cover;
   }
 
-@media (max-width: 768px) {
-  .calendar-scroll-container {
-    overflow-x: auto; 
-    -webkit-overflow-scrolling: touch; 
-    width: 100%; 
-    display: flex; 
-  }
+  @media (max-width: 768px) {
+    .calendar-scroll-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+      display: flex;
+    }
 
-  .fc-view {
-    min-width: 600px;  
-  }
+    .fc-view {
+      min-width: 600px;
+    }
 
-  .fc-timegrid-week-view {
-    min-width: 700px; 
-    width: max-content;
+    .fc-timegrid-week-view {
+      min-width: 700px;
+      width: max-content;
+    }
   }
-}
-  
 }
 
 @layer base {
@@ -177,5 +185,4 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-  
 }

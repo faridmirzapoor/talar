@@ -10,6 +10,7 @@ class Halls(models.Model):
         VAHDAT = "VD", "وحدت",
         ANDISHE = "AN", "اندیشه",
         SABA = "SB", "صبا",
+        
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=2,choices=Name.choices, verbose_name="نام تالار")
     capacity = models.PositiveIntegerField(verbose_name="ظرفیت تالار")

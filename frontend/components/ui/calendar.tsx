@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect} from "react";
 import axios from "axios";
 import {
   formatDate,
@@ -29,18 +29,26 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [newEventTitle, setNewEventTitle] = useState<string>("");
 
+
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const events = talar.events || [];
         const calendarEvents = events.map((task: any) => {
-          console.log(task)
-          const startDateTime = moment(task.event_date + " " + task.start_time, "jYYYY-jMM-jDD HH:mm").toDate()
-          const endDateTime = moment(task.event_date + " " + task.end_time, "jYYYY-jMM-jDD HH:mm").toDate()
-          console.log(task.event_date)
-          console.log(startDateTime)
-          console.log('****')
-          console.log(endDateTime)
+          console.log(task);
+          const startDateTime = moment(
+            task.event_date + " " + task.start_time,
+            "jYYYY-jMM-jDD HH:mm"
+          ).toDate();
+          const endDateTime = moment(
+            task.event_date + " " + task.end_time,
+            "jYYYY-jMM-jDD HH:mm"
+          ).toDate();
+          console.log(task.event_date);
+          console.log(startDateTime);
+          console.log("****");
+          console.log(endDateTime);
 
           return {
             id: task.id,
@@ -66,15 +74,15 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
     setIsDialogOpen(true);
   };
 
-  const handleEventClick = (selected: EventClickArg) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the event "${selected.event.title}"?`
-      )
-    ) {
-      selected.event.remove();
-    }
-  };
+  // const handleEventClick = (selected: EventClickArg) => {
+  //   if (
+  //     window.confirm(
+  //       `Are you sure you want to delete the event "${selected.event.title}"?`
+  //     )
+  //   ) {
+  //     selected.event.remove();
+  //   }
+  // };
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
@@ -102,7 +110,7 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
       <div className="flex w-full px-10 justify-start items-start gap-8">
         <div className="w-3/12 hidden desktop:block">
           <div className="py-10 text-2xl font-extrabold px-7">
-            Calendar Events
+            رویداد های پیش رو
           </div>
           <ul className="space-y-4">
             {currentEvents.length <= 0 && (
@@ -127,13 +135,27 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
                       locale: "fa",
                     })}
                   </label>
+                  <br />
+                  <label className="text-slate-950">
+                    {new Intl.DateTimeFormat("fa-IR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    }).format(event.start!)}
+                    {" - "}
+                    {new Intl.DateTimeFormat("fa-IR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    }).format(event.end!)}
+                  </label>
                 </li>
               ))}
           </ul>
         </div>
 
         <div className="w-full desktop:w-9/12 mt-8">
-          <div className="calendar-scroll-container fc-direction-rtl">
+          <div className="calendar-scroll-container fc-direction-rtl text-smleading-6">
             <FullCalendar
               height={"85vh"}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -149,9 +171,9 @@ const Calendar: React.FC<CalendarProps> = ({ talar }) => {
               dayMaxEvents={true}
               slotMinWidth={100} // Minimum width for each day column
               select={handleDateClick}
-              eventClick={handleEventClick}
+              // eventClick={handleEventClick}
               locale="fa"
-              dir="rtl"
+              direction="rtl"
               firstDay={6}
               weekNumberCalculation="local"
               weekends={true}

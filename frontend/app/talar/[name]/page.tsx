@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@components/ui/select";
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Calendar from "@components/ui/calendar";
 
@@ -129,6 +129,7 @@ const TalarPage = () => {
     }
   };
 
+
   return (
     <div className="font-estedadSB text-white">
       <div className="w-full relative">
@@ -138,20 +139,20 @@ const TalarPage = () => {
               imageUrl={`http://localhost:8000/media/halls_images/${talar.name_farsi}.jpg`}
             >
               <div>
-                <h1>تالار: {talar.name_farsi}</h1>
-                <div className="flex justify-center items-center gap-8">
-                  <div className="flex flex-col flex-[1] justify-center items-center w-36 h-28 bg-red-500 rounded-lg">
+                <h1 className="bg-white p-2 rounded-sm glass_morph text-2xl">تالار: {talar.name_farsi}</h1>
+                <div className="flex justify-center items-center gap-8 mt-2">
+                  <div className="flex flex-col flex-[1] justify-center items-center w-36 h-32 bg-red-500 rounded-lg p-2">
                     <span>ظرفیت:</span>
                     <span>{talar.hall.capacity} نفر</span>
                   </div>
-                  <div className="flex flex-col flex-[3] justify-center items-center w-36 h-28 bg-red-500 rounded-lg">
+                  <div className="flex flex-col flex-[3] justify-center items-center w-36 h-32 bg-red-500 rounded-lg p-2">
                     <span>مکان:</span>
                     <span className="text-center">{talar.hall.address}</span>
                   </div>
                   <Button
                     onClick={() => setIsDialogOpen(true)}
                     variant="outline"
-                    className="flex-[1] h-full text-black hover:text-white hover:bg-stone-700 hover:border-2"
+                    className="flex-[1] h-full text-black hover:text-white hover:bg-stone-700 hover:border-2 p-6"
                   >
                     رزرو
                   </Button>
