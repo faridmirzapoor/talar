@@ -10,6 +10,6 @@ class HallsAdmin(admin.ModelAdmin):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'hall', 'start_time', 'end_time', 'event_date',)
+    list_display = ('id', 'title', 'hall', 'start_time', 'end_time', 'event_date', 'status')
     prepopulated_fields = {"slug": ("title",)}
 

@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import "../styles/globals.css"
+import React, { ReactNode, Suspense } from "react";
+import "../styles/globals.css";
 
 interface LayoutProps {
   children: ReactNode;
@@ -7,12 +7,12 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <html dir='rtl'>
-        <body>
-            {children}
-        </body>
+    <html lang="fa" dir="rtl">
+      <body>
+        <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+      </body>
     </html>
   );
-}
+};
 
 export default Layout;

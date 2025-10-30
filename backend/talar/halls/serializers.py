@@ -11,7 +11,7 @@ class HallSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['hall', 'title', 'event_date', 'start_time', 'end_time', 'description', 'student_id', 'phone_number']
+        fields = ['id' ,'hall', 'title', 'event_date', 'start_time', 'end_time', 'description', 'student_id', 'phone_number', 'image', 'status']
 
     def validate(self, data):
         from datetime import time

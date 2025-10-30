@@ -28,9 +28,9 @@ class Halls(models.Model):
 
 class Event(models.Model):
     class Status(models.TextChoices):
-        REJECTED = "RJ", "رد شده",
-        APPROVED = "AP", "تایید شده",
-        PENDING = "PN", "در حال انتظار",
+        REJECTED = "RJ", "رد شده"
+        APPROVED = "AP", "تایید شده"
+        PENDING = "PN", "در حال انتظار"
 
     id = models.AutoField(primary_key=True)
     hall = models.ForeignKey(Halls, on_delete=models.CASCADE, related_name="events", verbose_name="تالار")
@@ -45,6 +45,7 @@ class Event(models.Model):
     phone_number = models.CharField(max_length=15, verbose_name="شماره تماس")
     # event created time
     created = jmodels.jDateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to="posters/", default="posters/placeholder.svg" ,verbose_name="تصویر پوستر")
 
     class Meta:
         verbose_name = "رویداد"

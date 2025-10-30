@@ -45,6 +45,8 @@ interface Talar {
 }
 
 import moment from "moment-jalaali";
+import { Input } from "@components/ui/input";
+import { Label } from "@components/ui/label";
 
 const TalarPage = () => {
   const [talar, setTalar] = useState<Talar | null>(null);
@@ -106,18 +108,27 @@ const TalarPage = () => {
     const formattedStartTime = moment(data.start_time, "HH:mm").format("HH:mm");
     const formattedEndTime = moment(data.end_time, "HH:mm").format("HH:mm");
 
+    const formData = new FormData();
+    formData.append("hall", String(talar.hall.id)); // تبدیل عدد به رشته
+    formData.append("title", data.title);
+    formData.append("event_date", formattedEventDate);
+    formData.append("start_time", formattedStartTime);
+    formData.append("end_time", formattedEndTime);
+    formData.append("description", data.description || "");
+    formData.append("student_id", data.student_id || "");
+    formData.append("phone_number", data.phone_number);
+    if (data.image && data.image[0]) {
+      formData.append("image", data.image[0]); // فایل
+    }
+
     try {
-      const response = await axios.post(
+      await axios.post(
         `http://127.0.0.1:8000/halls/${data.talarName}/reserve/`,
+        formData,
         {
-          hall: talar.hall.id,
-          title: data.title,
-          event_date: formattedEventDate,
-          start_time: formattedStartTime,
-          end_time: formattedEndTime,
-          description: data.description,
-          student_id: data.student_id,
-          phone_number: data.phone_number,
+          headers:{
+            "Content-Type": "multipart/form-data"
+          }
         }
       );
 
@@ -129,7 +140,6 @@ const TalarPage = () => {
     }
   };
 
-
   return (
     <div className="font-estedadSB text-white">
       <div className="w-full relative">
@@ -139,7 +149,9 @@ const TalarPage = () => {
               imageUrl={`http://localhost:8000/media/halls_images/${talar.name_farsi}.jpg`}
             >
               <div>
-                <h1 className="bg-white p-2 rounded-sm glass_morph text-2xl">تالار: {talar.name_farsi}</h1>
+                <h1 className="bg-white p-2 rounded-sm glass_morph text-2xl">
+                  تالار: {talar.name_farsi}
+                </h1>
                 <div className="flex justify-center items-center gap-8 mt-2">
                   <div className="flex flex-col flex-[1] justify-center items-center w-36 h-32 bg-red-500 rounded-lg p-2">
                     <span>ظرفیت:</span>
@@ -169,9 +181,9 @@ const TalarPage = () => {
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>رزرو تالار</DialogTitle>
+            <DialogTitle className="font-estedadSB">رزرو تالار</DialogTitle>
           </DialogHeader>
-          <div>
+          <div className="font-estedadM">
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="flex flex-col gap-4"
@@ -287,6 +299,17 @@ const TalarPage = () => {
                     placeholder="کد دانشجویی"
                     className="w-full h-14 bg-white px-4"
                   />
+                )}
+              />
+              <Controller
+                name="image"
+                control={control}
+                defaultValue={[]}
+                render={({ field }) => (
+                  <div>
+                    <Label htmlFor="picture">عکس پوستر</Label>
+                    <Input ref={field.ref} id="picture" type="file" onChange={(e) => field.onChange(e.target.files)} />
+                  </div>
                 )}
               />
 

@@ -1,24 +1,17 @@
 "use client";
 
-import React, { useState, useEffect} from "react";
-import axios from "axios";
-import {
-  formatDate,
-  DateSelectArg,
-  EventClickArg,
-  EventApi,
-} from "@fullcalendar/core";
+import React, { useState, useEffect, useRef } from "react";
+import { formatDate, EventApi } from "@fullcalendar/core";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import moment from "moment-jalaali";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface CalendarProps {
   talar: any;
@@ -26,186 +19,161 @@ interface CalendarProps {
 
 const Calendar: React.FC<CalendarProps> = ({ talar }) => {
   const [currentEvents, setCurrentEvents] = useState<EventApi[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [newEventTitle, setNewEventTitle] = useState<string>("");
+  const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
+  const calendarRef = useRef<FullCalendar>(null);
 
-
+  const pastelColors = [
+    "#BAFFC9",
+    "#BAE1FF",
+    "#FFFFBA",
+    "#FFD9BA",
+    "#E0BBE4",
+    "#D4F1F4",
+    "#FEC8D8",
+  ];
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const events = talar.events || [];
-        const calendarEvents = events.map((task: any) => {
-          console.log(task);
-          const startDateTime = moment(
-            task.event_date + " " + task.start_time,
-            "jYYYY-jMM-jDD HH:mm"
-          ).toDate();
-          const endDateTime = moment(
-            task.event_date + " " + task.end_time,
-            "jYYYY-jMM-jDD HH:mm"
-          ).toDate();
-          console.log(task.event_date);
-          console.log(startDateTime);
-          console.log("****");
-          console.log(endDateTime);
+    if (!talar || !talar.events) return;
 
-          return {
-            id: task.id,
-            title: task.title,
-            start: startDateTime,
-            end: endDateTime,
-            description: task.description,
-          };
-        });
+    const approvedEvents = talar.events.filter(
+      (task: any) => task.status === "AP"
+    );
+    const calendarEvents = approvedEvents.map((task: any, index: number) => ({
+      id: String(task.id),
+      title: task.title,
+      start: moment(
+        task.event_date + " " + task.start_time,
+        "YYYY-MM-DD HH:mm"
+      ).toDate(),
+      end: moment(
+        task.event_date + " " + task.end_time,
+        "YYYY-MM-DD HH:mm"
+      ).toDate(),
+      description: task.description,
+      image: task.image ? `http://127.0.0.1:8000${task.image}` : null, // لینک پوستر
+      backgroundColor: pastelColors[index % pastelColors.length],
+      borderColor: pastelColors[index % pastelColors.length],
+      textColor: "#2C3E50",
+    }));
 
-        setCurrentEvents(calendarEvents);
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-      }
-    };
-
-    if (talar && talar.events) {
-      fetchTasks();
-    }
+    setCurrentEvents(calendarEvents);
   }, [talar]);
 
-  const handleDateClick = (selected: DateSelectArg) => {
-    setIsDialogOpen(true);
+  const handleEventItemClick = (event: any) => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.changeView("timeGridDay", event.start);
+    }
+
+    // باز یا بسته کردن collapsible
+    setExpandedEventId((prev) => (prev === event.id ? null : event.id));
   };
 
-  // const handleEventClick = (selected: EventClickArg) => {
-  //   if (
-  //     window.confirm(
-  //       `Are you sure you want to delete the event "${selected.event.title}"?`
-  //     )
-  //   ) {
-  //     selected.event.remove();
-  //   }
-  // };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setNewEventTitle("");
-  };
-
-  const handleAddEvent = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newEventTitle) {
-      setNewEventTitle("");
-      setIsDialogOpen(false);
+  const handleCalendarEventClick = (event: any) => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.changeView("timeGridDay", event.event.start);
     }
   };
-
-  useEffect(() => {
-    const element = document.querySelector('[aria-labelledby="fc-dom-16"]');
-
-    if (element) {
-      element.classList.add("overflow-x-auto");
-    }
-  }, []);
 
   return (
     <div className="text-black">
       <div className="flex w-full px-10 justify-start items-start gap-8">
+        {/* لیست رویدادها */}
         <div className="w-3/12 hidden desktop:block">
           <div className="py-10 text-2xl font-extrabold px-7">
-            رویداد های پیش رو
+            رویداد‌های پیش رو (تایید شده)
           </div>
           <ul className="space-y-4">
             {currentEvents.length <= 0 && (
               <div className="italic text-center text-gray-400">
-                No Events Present
+                هیچ رویداد تایید شده‌ای وجود ندارد
               </div>
             )}
-
-            {currentEvents.length > 0 &&
-              currentEvents.map((event: EventApi) => (
-                <li
-                  className="border border-gray-200 shadow px-4 py-2 rounded-md text-blue-800"
-                  key={`${event.id}-${event.start}`} // Ensure a unique key using a combination of `id` and `start`
-                >
-                  {event.title}
-                  <br />
-                  <label className="text-slate-950">
-                    {formatDate(event.start!, {
+            {currentEvents.map((event: any) => (
+              <li
+                key={event.id}
+                className="border shadow-md px-4 py-3 rounded-lg transition-all hover:shadow-lg cursor-pointer"
+                style={{
+                  backgroundColor: event.backgroundColor,
+                  borderColor: event.borderColor,
+                }}
+              >
+                <div onClick={() => handleEventItemClick(event)}>
+                  <div className="font-bold text-lg mb-2">{event.title}</div>
+                  <div className="text-sm text-gray-700">
+                    📅{" "}
+                    {formatDate(event.start, {
                       year: "numeric",
                       month: "short",
                       day: "numeric",
                       locale: "fa",
                     })}
-                  </label>
-                  <br />
-                  <label className="text-slate-950">
+                  </div>
+                  <div className="text-sm text-gray-700">
+                    🕐{" "}
                     {new Intl.DateTimeFormat("fa-IR", {
                       hour: "2-digit",
                       minute: "2-digit",
                       hour12: false,
-                    }).format(event.start!)}
+                    }).format(event.start)}
                     {" - "}
                     {new Intl.DateTimeFormat("fa-IR", {
                       hour: "2-digit",
                       minute: "2-digit",
                       hour12: false,
-                    }).format(event.end!)}
-                  </label>
-                </li>
-              ))}
+                    }).format(event.end)}
+                  </div>
+                </div>
+
+                {/* collapsible نمایش پوستر */}
+                {event.image && (
+                  <Collapsible open={expandedEventId === event.id}>
+                    <CollapsibleContent className="mt-2">
+                      <img
+                        src={event.image}
+                        alt="پوستر رویداد"
+                        className="w-full rounded-md shadow-md"
+                      />
+                    </CollapsibleContent>
+                  </Collapsible>
+                )}
+              </li>
+            ))}
           </ul>
         </div>
 
+        {/* تقویم */}
         <div className="w-full desktop:w-9/12 mt-8">
-          <div className="calendar-scroll-container fc-direction-rtl text-smleading-6">
-            <FullCalendar
-              height={"85vh"}
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              headerToolbar={{
-                left: "prev,next today",
-                center: "title",
-                right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
-              }}
-              initialView="timeGridWeek"
-              editable={false}
-              selectable={false}
-              selectMirror={true}
-              dayMaxEvents={true}
-              slotMinWidth={100} // Minimum width for each day column
-              select={handleDateClick}
-              // eventClick={handleEventClick}
-              locale="fa"
-              direction="rtl"
-              firstDay={6}
-              weekNumberCalculation="local"
-              weekends={true}
-              events={currentEvents}
-            />
-          </div>
+          <FullCalendar
+            ref={calendarRef}
+            height="85vh"
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            headerToolbar={{
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+            }}
+            buttonText={{
+              today: "امروز",
+              day: "روز",
+              week: "هفته",
+              month: "ماه",
+            }}
+            initialView="timeGridWeek"
+            editable={false}
+            selectable={false}
+            selectMirror={true}
+            dayMaxEvents={true}
+            eventClick={handleCalendarEventClick}
+            locale="fa"
+            direction="rtl"
+            firstDay={6}
+            events={currentEvents}
+            eventClassNames="rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          />
         </div>
       </div>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Event Details</DialogTitle>
-          </DialogHeader>
-          <form className="space-x-5 mb-4" onSubmit={handleAddEvent}>
-            <input
-              type="text"
-              placeholder="Event Title"
-              value={newEventTitle}
-              onChange={(e) => setNewEventTitle(e.target.value)}
-              required
-              className="border border-gray-200 p-3 rounded-md text-lg"
-            />
-            <button
-              className="bg-green-500 text-white p-3 mt-5 rounded-md"
-              type="submit"
-            >
-              Add
-            </button>{" "}
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
